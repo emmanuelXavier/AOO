@@ -7,6 +7,7 @@ package teste;
     private String nome;
     private String senha;
     private float saldo;
+    private String gerente;
 
     public int getCodigo() {
         return codigo;
