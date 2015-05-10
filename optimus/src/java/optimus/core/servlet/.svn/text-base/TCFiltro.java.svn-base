@@ -1,0 +1,115 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+package optimus.core.servlet;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import optimus.academicus.beans.TQuadroCurricular;
+import optimus.core.TFilter;
+import org.omg.CORBA.Request;
+
+/**
+ *
+ * @author Administrador
+ */
+public class TCFiltro extends HttpServlet {
+   
+    /** 
+    * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
+    * @param request servlet request
+    * @param response servlet response
+    */
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+    throws ServletException, IOException {
+        response.setContentType("text/html;charset=UTF-8");
+        PrintWriter out = response.getWriter();
+        try {
+            /* TODO output your page here
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<title>Servlet TCFiltro</title>");  
+            out.println("</head>");
+            out.println("<body>");
+            out.println("<h1>Servlet TCFiltro at " + request.getContextPath () + "</h1>");
+            out.println("</body>");
+            out.println("</html>");
+            */
+        } finally { 
+            out.close();
+        }
+    } 
+
+    // <editor-fold defaultstate="collapsed" desc="Métodos HttpServlet. Clique no sinal de + à esquerda para editar o código.">
+    /** 
+    * Handles the HTTP <code>GET</code> method.
+    * @param request servlet request
+    * @param response servlet response
+    */
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+    throws ServletException, IOException {
+        if (request.getParameter("event").equals("quadro")) {
+            try {
+                this.getQuadro(request.getParameter("curso"),request,response);
+                
+            } catch (SQLException ex) {
+                Logger.getLogger(TCGeneric.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    } 
+
+    /** 
+    * Handles the HTTP <code>POST</code> method.
+    * @param request servlet request
+    * @param response servlet response
+    */
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+    throws ServletException, IOException {
+        processRequest(request, response);
+    }
+    
+    protected void getQuadro(String curso,HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
+
+        PrintWriter out = response.getWriter();
+        
+        List<TQuadroCurricular> quadros = new ArrayList<TQuadroCurricular>();
+        TQuadroCurricular quadro = new TQuadroCurricular();
+        System.out.println(curso);
+        String[] operador = new String[1];
+        String[] criterio = new String[1];
+        String[] campo = new String[1];
+        String[] valor = new String[1];
+
+        criterio[0] = " where ";
+        campo[0] = " curso ";
+        operador[0] = " = ";
+        valor[0] = curso;
+
+        quadros = quadro.select(new TFilter(criterio, campo, operador, valor), "ac008", "");
+
+                out.println("<option value='0'>Selecione...</option>");
+        for (TQuadroCurricular quadro9 : quadros) {
+                out.println("<option value='" + "" + quadro9.getDescricao() + "'>" + quadro9.getDescricao() + "</option>");
+        }
+
+    }
+
+    /** 
+    * Returns a short description of the servlet.
+    */
+    public String getServletInfo() {
+        return "Short description";
+    }// </editor-fold>
+
+}

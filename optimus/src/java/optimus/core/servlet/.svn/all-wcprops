@@ -1,0 +1,95 @@
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/optimus/!svn/ver/3985/src/java/optimus/core/servlet
+END
+TCLogin.java
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/optimus/!svn/ver/3985/src/java/optimus/core/servlet/TCLogin.java
+END
+TCLogout.java
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/optimus/!svn/ver/2167/src/java/optimus/core/servlet/TCLogout.java
+END
+TCGeneric.java
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/optimus/!svn/ver/3985/src/java/optimus/core/servlet/TCGeneric.java
+END
+TCComboParam.java
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/optimus/!svn/ver/1413/src/java/optimus/core/servlet/TCComboParam.java
+END
+TCPaginacao.java
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/optimus/!svn/ver/1061/src/java/optimus/core/servlet/TCPaginacao.java
+END
+TCEdit.java
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/optimus/!svn/ver/3841/src/java/optimus/core/servlet/TCEdit.java
+END
+TCComboFields.java
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/optimus/!svn/ver/1122/src/java/optimus/core/servlet/TCComboFields.java
+END
+TCTrocaSenha.java
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/optimus/!svn/ver/2289/src/java/optimus/core/servlet/TCTrocaSenha.java
+END
+TCVerifica.java
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/optimus/!svn/ver/3526/src/java/optimus/core/servlet/TCVerifica.java
+END
+TCCidades.java
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/optimus/!svn/ver/1204/src/java/optimus/core/servlet/TCCidades.java
+END
+TCGetId.java
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/optimus/!svn/ver/3332/src/java/optimus/core/servlet/TCGetId.java
+END
+TCCombo.java
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/optimus/!svn/ver/3985/src/java/optimus/core/servlet/TCCombo.java
+END
+TCFiltro.java
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/optimus/!svn/ver/1406/src/java/optimus/core/servlet/TCFiltro.java
+END
+TCComboDuplo.java
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/optimus/!svn/ver/3576/src/java/optimus/core/servlet/TCComboDuplo.java
+END
+TCUltimoAcesso.java
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/optimus/!svn/ver/3932/src/java/optimus/core/servlet/TCUltimoAcesso.java
+END

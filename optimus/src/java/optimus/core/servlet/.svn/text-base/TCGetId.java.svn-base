@@ -1,0 +1,179 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+package optimus.core.servlet;
+
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.lang.reflect.Field;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.servlet.ServletException;
+import javax.servlet.http.*;
+import optimus.core.TFilter;
+import optimus.core.TStrategyContexto;
+import optimus.core.dao.TGenericDAO;
+
+/**
+ *
+ * @author Analista Sênior
+ */
+public class TCGetId extends HttpServlet {
+    protected TGenericDAO beans;
+    protected Field[] fields;
+    protected String[] campos;
+    protected int id;
+    protected String classe;
+    protected String tabela;
+    protected String atributo;
+    protected String filtro = null;
+
+    public String getFiltro() {
+        return filtro;
+    }
+
+    public void setFiltro(String filtro) {
+        this.filtro = filtro;
+    }
+    
+     public int getAtributoId() {
+        return id;
+    }
+     
+    public String getAtributo() {
+        return atributo;
+    }
+
+    public void setAtributo(String atributo) {
+        this.atributo = atributo;
+    }
+
+    public TGenericDAO getBeans() {
+        return beans;
+    }
+
+    public void setBeans(TGenericDAO beans) {
+        this.beans = beans;
+    }
+
+    public String[] getCampos() {
+        return campos;
+    }
+
+    public void setCampos(String[] campos) {
+        this.campos = campos;
+    }
+
+    public String getClasse() {
+        return classe;
+    }
+
+    public void setClasse(String classe) {
+        this.classe = classe;
+    }
+
+    public Field[] getFields() {
+        return fields;
+    }
+
+    public void setFields(Field[] fields) {
+        this.fields = fields;
+    }
+
+    
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getTabela() {
+        return tabela;
+    }
+
+    public void setTabela(String tabela) {
+        this.tabela = tabela;
+    }
+    
+
+    public String construtora(String classe, int id, String tabela, String atributo) {
+    
+        this.classe     = classe;
+        this.id         = id;
+        this.tabela     = tabela;
+        this.atributo   = atributo;
+        
+        TStrategyContexto strategy = new TStrategyContexto(this.classe);
+        this.beans = (TGenericDAO) strategy.factoryStrategy();
+        
+        return this.getId();
+    }
+    
+    public String construtora(String classe, int id, String tabela, String atributo, String filtro) {
+    
+        this.setFiltro(filtro);
+
+        return this.construtora(classe, id, tabela, atributo);
+    }
+
+    
+    private String getId() {
+        {
+            try {
+              
+
+
+                //especificando filtros
+                String[] operador = new String[1];
+                String[] criterio = new String[1];
+                String[] campo = new String[1];
+                String[] valor = new String[1];
+
+                criterio[0] = " where ";
+                campo[0] = " id ";
+                if (this.tabela.equals("exv002")) {
+                    campo[0] = " idturma ";    
+                }
+                if (this.getFiltro() != null) {
+                    campo[0] = this.getFiltro();
+                    this.filtro = null;
+                }
+                operador[0] = " = ";
+                valor[0] = " " + this.id + " ";
+
+                ResultSet rs = (ResultSet) this.beans.select(this.tabela, new TFilter(criterio, campo, operador, valor), "");
+                if (rs.next()) {
+                   // System.out.print("<% String id = '" + rs.getString(this.atributo) + "';%>");
+                return rs.getString(this.atributo);    
+                }
+                
+                 return "0";
+            } catch (SQLException ex) {
+                Logger.getLogger(TCGetId.class.getName()).log(Level.SEVERE, null, ex);
+                return "0";
+            }
+
+    }
+    
+    }
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        
+        this.setClasse(request.getParameter("classe"));
+        this.setId(Integer.parseInt(request.getParameter("id").toString()));
+        this.setAtributo(request.getParameter("atributo"));
+        this.setTabela(request.getParameter("tabela"));
+        String informacao = this.construtora(this.getClasse(), this.getAtributoId(), this.getTabela(), this.getAtributo());
+        
+        PrintWriter out = response.getWriter();
+        response.setContentType("text/html");
+        out.print(informacao);
+        
+    }
+
+}

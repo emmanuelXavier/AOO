@@ -1,0 +1,71 @@
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/optimus/!svn/ver/3993/src/java/optimus/core
+END
+TTransacao.java
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/optimus/!svn/ver/3728/src/java/optimus/core/TTransacao.java
+END
+TValidaLogins.java
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/optimus/!svn/ver/2/src/java/optimus/core/TValidaLogins.java
+END
+ITrocaSenha.java
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/optimus/!svn/ver/1338/src/java/optimus/core/ITrocaSenha.java
+END
+TSendMail.java
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/optimus/!svn/ver/471/src/java/optimus/core/TSendMail.java
+END
+TCriterio.java
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/optimus/!svn/ver/2373/src/java/optimus/core/TCriterio.java
+END
+TUtils.java
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/optimus/!svn/ver/3936/src/java/optimus/core/TUtils.java
+END
+TCripto.java
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/optimus/!svn/ver/1770/src/java/optimus/core/TCripto.java
+END
+TFilter.java
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/optimus/!svn/ver/2416/src/java/optimus/core/TFilter.java
+END
+TStrategyContexto.java
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/optimus/!svn/ver/1750/src/java/optimus/core/TStrategyContexto.java
+END
+IStrategy.java
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/optimus/!svn/ver/2/src/java/optimus/core/IStrategy.java
+END
+IValidacao.java
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/optimus/!svn/ver/1516/src/java/optimus/core/IValidacao.java
+END

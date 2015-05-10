@@ -1,0 +1,123 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package optimus.core.servlet;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import optimus.core.TFilter;
+import optimus.core.beans.TCidades;
+
+/**
+ * TCCidades - Lista as cidades por estado
+ * @author PR0GR@MM3R
+ */
+public class TCCidades extends HttpServlet {
+
+    /** 
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
+     * @param request servlet request
+     * @param response servlet response
+     */
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        response.setContentType("text/html;charset=UTF-8");
+        PrintWriter out = response.getWriter();
+        try {
+            /* TODO output your page here
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<title>Servlet TCCidades</title>");  
+            out.println("</head>");
+            out.println("<body>");
+            out.println("<h1>Servlet TCCidades at " + request.getContextPath () + "</h1>");
+            out.println("</body>");
+            out.println("</html>");
+             */
+        } finally {
+            out.close();
+        }
+    }
+
+    // <editor-fold defaultstate="collapsed" desc="Métodos HttpServlet. Clique no sinal de + à esquerda para editar o código.">
+    /** 
+     * Handles the HTTP <code>GET</code> method.
+     * @param request servlet request
+     * @param response servlet response
+     */
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        response.setContentType("text/html");
+        PrintWriter out = null;
+        out = response.getWriter();
+
+        try {
+            List<TCidades> cidades = new ArrayList<TCidades>();
+            cidades = getCidades(request.getParameter("estado"));
+
+         //   out.println("<select dojoType='dijit.form.FilteringSelect' autoComplete='false' invalidMessage='Op&ccedil;&atilde;o inv&aacute;lida' id='acidade' name='acidade'>");
+         //   foi removido para que não fossem utilizados parametros com os nomes dos controles para o servlet
+            
+            for (TCidades cidade : cidades) {
+                out.println("<option value='" + "" + cidade.getId() + "'>" + cidade.getNome() + "</option>");
+            }
+           
+        } catch (SQLException ex) {
+            Logger.getLogger(TCCidades.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+
+    }
+
+    /** 
+     * Handles the HTTP <code>POST</code> method.
+     * @param request servlet request
+     * @param response servlet response
+     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    /** 
+     * Returns a short description of the servlet.
+     */
+    @Override
+    public String getServletInfo() {
+        return "Short description";
+    }// </editor-fold>
+
+    protected List<TCidades> getCidades(String estado) throws SQLException {
+
+        List<TCidades> cidades = new ArrayList<TCidades>();
+        TCidades cidade = new TCidades();
+
+        String[] operador = new String[1];
+        String[] criterio = new String[1];
+        String[] campo = new String[1];
+        String[] valor = new String[1];
+
+        criterio[0] = " where ";
+        campo[0] = " estado ";
+        operador[0] = " = ";
+        valor[0] = estado;
+
+        cidades = cidade.select(new TFilter(criterio, campo, operador, valor), "si003", "");
+
+        return cidades;
+
+
+    }
+}

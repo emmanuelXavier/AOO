@@ -1,0 +1,116 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+package optimus.core.servlet;
+
+import java.io.*;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.servlet.*;
+import javax.servlet.http.*;
+import optimus.core.TFilter;
+
+/**
+ *
+ * @author Analista Sênior
+ */
+public class TCComboDuplo extends TCCombo {
+   
+   
+
+  
+    @Override
+     protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try {
+
+            this.construtora(request.getParameter("classe"));
+            
+            int field1 = Integer.parseInt(request.getParameter("field1"));
+            int field2 = Integer.parseInt(request.getParameter("field2"));
+            
+            response.setContentType("text/html");
+            PrintWriter out = null;
+            out = response.getWriter();
+
+            String[] operador = new String[4];
+            String[] criterio = new String[4];
+            String[] campo = new String[4];
+            String[] valor = new String[4];
+
+            //especificando filtros
+            criterio[0] = ""; campo[0] = ""; operador[0] = ""; valor[0] = "";
+            criterio[1] = ""; campo[1] = ""; operador[1] = ""; valor[1] = "";
+            criterio[2] = ""; campo[2] = ""; operador[2] = ""; valor[2] = "";
+            criterio[3] = ""; campo[3] = ""; operador[3] = ""; valor[3] = "";
+            
+            String limit = "";
+
+            
+            if (request.getParameter("campo") != null) {
+                criterio[0] = " where "; campo[0] = " " + request.getParameter("campo") + " "; operador[0] = " = "; valor[0] = " " + request.getParameter("valor") + " ";
+            } 
+            else {
+                limit = " order by id ";
+            }
+            if (request.getParameter("campo2") != null) {
+                criterio[1] = " and "; campo[1] = " " + request.getParameter("campo2") + " "; operador[1] = " = "; valor[1] = " " + request.getParameter("valor2") + " ";
+            }
+            if (request.getParameter("campo3") != null) {
+                criterio[2] = " and "; campo[2] = " " + request.getParameter("campo3") + " "; operador[2] = " = "; valor[2] = " " + request.getParameter("valor3") + " ";
+            }
+            if (request.getParameter("campo4") != null) {
+                criterio[3] = " and "; campo[3] = " " + request.getParameter("campo4") + " "; operador[3] = " = "; valor[3] = " " + request.getParameter("valor4") + " ";
+            }
+           
+  
+            ResultSet rs = null;
+
+            rs = (ResultSet) this.beans.select(request.getParameter("tabela"), new TFilter(criterio, campo, operador, valor), limit);
+
+            //vetor de String com o total de atributos da classe
+            this.campos = new String[this.beans.getClass().getDeclaredFields().length];
+
+            //recebe os atributos do classe
+            this.fields = this.beans.getClass().getDeclaredFields();
+            
+            
+            String s = "";
+            if (request.getParameter("selected") != null) {
+                s = request.getParameter("selected");    
+            }
+
+
+           if(request.getParameter("sel") == null){
+                out.println("<option value='0'>Selecione...</option>");
+            }
+
+
+            while (rs.next()) {
+                if(rs.getString(this.fields[0].getName()).equals(s)){
+                    out.println("<option selected value='" + rs.getInt(this.fields[0].getName()) + "'>" + rs.getString(this.fields[field1].getName()) + " - " + rs.getString(this.fields[field2].getName()) + "</option>");
+                    System.out.print("Selecionado: " + rs.getInt(this.fields[0].getName()));
+                }
+                else 
+                {
+                out.println("<option value='" + rs.getInt(this.fields[0].getName()) + "'>" + rs.getString(this.fields[field1].getName()) + " - " + rs.getString(this.fields[field2].getName()) + "</option>");
+                }
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(TCCombo.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IllegalArgumentException ex) {
+            Logger.getLogger(TCCombo.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+
+    }
+    
+    public String getServletInfo() {
+        return "Short description";
+    }
+    // </editor-fold>
+}

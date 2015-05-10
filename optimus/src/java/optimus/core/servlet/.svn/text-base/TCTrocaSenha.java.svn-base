@@ -1,0 +1,86 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+package optimus.core.servlet;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import optimus.core.ITrocaSenha;
+import optimus.core.TStrategyContexto;
+
+
+/**
+ *
+ * @author OPTIMUS
+ */
+public class TCTrocaSenha extends HttpServlet {
+    
+    private ITrocaSenha trocarsenha;
+    private String novaSenha;
+    private String antigaSenha;
+    private int id;
+    
+   
+    /** 
+    * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
+    * @param request servlet request
+    * @param response servlet response
+    */
+   protected void construtora(String classe, HttpServletRequest request, HttpServletResponse response) {
+        
+        this.antigaSenha = request.getParameter("antigaSenha");
+        this.novaSenha   = request.getParameter("novaSenha");
+        this.id          = Integer.parseInt(request.getSession().getAttribute("usuario").toString());
+       
+        TStrategyContexto strategy = new TStrategyContexto(classe);
+        this.trocarsenha = (ITrocaSenha) strategy.factoryStrategy();
+
+    }
+
+    // <editor-fold defaultstate="collapsed" desc="Métodos HttpServlet. Clique no sinal de + à esquerda para editar o código.">
+    /** 
+    * Handles the HTTP <code>GET</code> method.
+    * @param request servlet request
+    * @param response servlet response
+    */
+   
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+    throws ServletException, IOException {
+        
+        
+        
+        PrintWriter out = response.getWriter();
+        
+        this.construtora(request.getParameter("classe"), request, response);
+        
+        
+        int resultado = this.trocarsenha.trocarSenha(this.antigaSenha, this.novaSenha, this.id, request);
+                
+        if (resultado == 0) {
+          out.print("Senha antiga não confere.");   
+        }
+        else if (resultado == 1){
+          out.print("Senha alterada com sucesso.");     
+        }
+        else if (resultado == 2){
+          out.print("Erro ao alterar a senha.");     
+        }
+        
+    }
+
+    /** 
+    * Returns a short description of the servlet.
+    */
+    @Override
+    public String getServletInfo() {
+        return "Short description";
+    }// </editor-fold>
+
+}

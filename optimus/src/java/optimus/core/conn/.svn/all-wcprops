@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/optimus/!svn/ver/3993/src/java/optimus/core/conn
+END
+TInstrucaoPostgres.java
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/optimus/!svn/ver/3725/src/java/optimus/core/conn/TInstrucaoPostgres.java
+END
+TAbstractInstrucoes.java
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/optimus/!svn/ver/3095/src/java/optimus/core/conn/TAbstractInstrucoes.java
+END
+TAbstractConnection.java
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/optimus/!svn/ver/2/src/java/optimus/core/conn/TAbstractConnection.java
+END
+TConnectionPostgreSql.java
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/optimus/!svn/ver/3993/src/java/optimus/core/conn/TConnectionPostgreSql.java
+END

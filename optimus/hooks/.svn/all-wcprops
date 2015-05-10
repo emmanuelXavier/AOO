@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 32
+/svn/optimus/!svn/ver/2127/hooks
+END
+pre-revprop-change.tmpl
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/optimus/!svn/ver/2127/hooks/pre-revprop-change.tmpl
+END
+post-commit.tmpl
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/optimus/!svn/ver/2127/hooks/post-commit.tmpl
+END
+post-lock.tmpl
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/optimus/!svn/ver/2127/hooks/post-lock.tmpl
+END
+pre-commit.tmpl
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/optimus/!svn/ver/2127/hooks/pre-commit.tmpl
+END
+pre-lock.tmpl
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/optimus/!svn/ver/2127/hooks/pre-lock.tmpl
+END
+post-unlock.tmpl
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/optimus/!svn/ver/2127/hooks/post-unlock.tmpl
+END
+pre-unlock.tmpl
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/optimus/!svn/ver/2127/hooks/pre-unlock.tmpl
+END
+post-revprop-change.tmpl
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/optimus/!svn/ver/2127/hooks/post-revprop-change.tmpl
+END
+start-commit.tmpl
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/optimus/!svn/ver/2127/hooks/start-commit.tmpl
+END

@@ -1,0 +1,10 @@
+<modify-entry
+   name=""
+   present-props=""
+   has-prop-mods="true"
+   has-props="true"/>
+<mv
+   dest=".svn/dir-props"
+   name=".svn/tempfile.tmp"/>
+<readonly
+   name=".svn/dir-props"/>

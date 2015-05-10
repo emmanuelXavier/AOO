@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 31
+/svn/optimus/!svn/ver/2127/conf
+END
+svnserve.conf
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svn/optimus/!svn/ver/2127/conf/svnserve.conf
+END
+passwd
+K 25
+svn:wc:ra_dav:version-url
+V 38
+/svn/optimus/!svn/ver/2127/conf/passwd
+END
+authz
+K 25
+svn:wc:ra_dav:version-url
+V 37
+/svn/optimus/!svn/ver/2127/conf/authz
+END

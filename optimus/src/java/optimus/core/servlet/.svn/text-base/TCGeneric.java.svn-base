@@ -1,0 +1,669 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package optimus.core.servlet;
+
+import java.io.*;
+import java.lang.reflect.Field;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.servlet.*;
+import javax.servlet.http.*;
+import optimus.core.TCriterio;
+import optimus.core.TFilter;
+import optimus.core.TStrategyContexto;
+import optimus.core.TUtils;
+import optimus.core.dao.TGenericDAO;
+
+/**
+ * TCGeneric - Classe servlet generico para operações de dados
+ * @author Administrador
+ */
+public class TCGeneric extends HttpServlet {
+
+    protected TGenericDAO beans;
+    protected Field[] fields;
+    protected String[] campos;
+
+    protected void construtora(String classe) {
+
+        TStrategyContexto strategy = new TStrategyContexto(classe);
+        this.beans = (TGenericDAO) strategy.factoryStrategy();
+
+    }
+
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    /** 
+     * Handles the HTTP <code>GET</code> method.
+     * @param request servlet request
+     * @param response servlet response
+     */
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        //System.out.println("Get...");
+        this.construtora(request.getParameter("classe"));
+        //excluir
+        if (request.getParameter("event").equals("excluir")) {
+            this.excluir(request, response);
+        } //listar
+        else if (request.getParameter("event").equals("listar")) {
+            try {
+                this.listar(request, response);
+            } catch (IllegalArgumentException ex) {
+                Logger.getLogger(TCGeneric.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IllegalAccessException ex) {
+                Logger.getLogger(TCGeneric.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } else if (request.getParameter("event").equals("listarAnoSemestre")) {
+            try {
+                this.listarAnoSemestre(request, response);
+            } catch (IllegalArgumentException ex) {
+                Logger.getLogger(TCGeneric.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IllegalAccessException ex) {
+                Logger.getLogger(TCGeneric.class.getName()).log(Level.SEVERE, null, ex);
+
+            }
+        } else if (request.getParameter("event").equals("listagem")) {
+            try {
+                this.listagem(request, response);
+            } catch (IllegalArgumentException ex) {
+                Logger.getLogger(TCGeneric.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IllegalAccessException ex) {
+                Logger.getLogger(TCGeneric.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+        }
+        if (request.getParameter("event").equals("ListaCandidato")) {
+            try {
+                this.ListaCandidato(request, response, request.getParameter("processo"));
+            } catch (IllegalArgumentException ex) {
+                Logger.getLogger(TCGeneric.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IllegalAccessException ex) {
+                Logger.getLogger(TCGeneric.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        if (request.getParameter("event").equals("cadastrar")) {
+            try {
+                this.cadastrar(request, response);
+            } catch (SQLException ex) {
+                Logger.getLogger(TCGeneric.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
+
+    }
+
+    /** 
+     * Handles the HTTP <code>POST</code> method.
+     * @param request servlet request
+     * @param response servlet response
+     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        this.construtora(request.getParameter("classe"));
+
+        if (request.getParameter("event").equals("cadastrar")) {
+            try {
+                this.cadastrar(request, response);
+            } catch (SQLException ex) {
+                Logger.getLogger(TCGeneric.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }//alterar
+        else if (request.getParameter("event").equals("alterar")) {
+            this.alterar(request, response);
+        } else {
+            if (request.getParameter("event").equals("setTurmaDisciplina")) {
+                this.setTurmaDisciplina(request, response);
+            }
+        }
+    }
+
+    protected void cadastrar(HttpServletRequest request, HttpServletResponse response) throws SQLException {
+        PrintWriter out = null;
+     //   TTransacao transacao = new TTransacao();
+     //   transacao.setAutoCommit(false);
+
+        try {
+            out = response.getWriter();
+
+            //vetor de String com o total de atributos da classe
+            this.campos = new String[this.beans.getClass().getDeclaredFields().length];
+            //recebe os atributos do classe
+            this.fields = this.beans.getClass().getDeclaredFields();
+
+            for (int i = 1; i < this.campos.length; i++) {
+                //torando acessivel o atributo
+                this.fields[i].setAccessible(true);
+                //recebendo o nome dos atributos da classe
+                this.campos[i] = this.fields[i].getName();
+                try {
+
+                    //verifica se o atributo do loop está vazio, se estiver setar o valor vindo no request
+                    if ((this.fields[i].get(this.beans) == null) ||
+                            (this.fields[i].get(this.beans).toString().isEmpty()) ||
+                            (this.fields[i].get(this.beans).toString().equals("0"))) {
+
+                        //descobri o tipo do campo para posterior tratamento    
+                        String tipo = this.fields[i].getType().getName();
+
+
+
+                        //de acordo com o tipo do atributo setar os valores
+                        if (tipo.equals("int")) {
+                            try {
+                                this.fields[i].set(this.beans, Integer.parseInt(request.getParameter(this.campos[i])));
+                            } catch (NumberFormatException e) {
+                            }
+                        } else if (tipo.equals("java.lang.String")) {
+                            if (this.campos[i].equals("senha")) {
+
+                                this.fields[i].set(this.beans, TUtils.Cripto(request.getParameter(this.campos[i])));
+                            } else {
+                                this.fields[i].set(this.beans, request.getParameter(this.campos[i]));
+                            }
+                        } else if (tipo.equals("Double")) {
+                            this.fields[i].set(this.beans, Double.parseDouble(request.getParameter(this.campos[i])));
+                        } else if (tipo.equals("Float")) {
+                            this.fields[i].set(this.beans, Float.parseFloat(request.getParameter(this.campos[i])));
+                        }
+                    }
+                } catch (IllegalAccessException ex) {
+                    Logger.getLogger(TCGeneric.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
+            }
+
+            if (this.beans.insert(request.getParameter("tabela"), request.getSession())) {
+                out.printf("Cadastro efetuado com sucesso.");
+           //     transacao.commit();
+
+            } else {
+                out.printf("Erro ao salvar os dados.");
+            //    transacao.rollback();
+
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(TCGeneric.class.getName()).log(Level.SEVERE, null, ex);
+         //   transacao.rollback();
+        } finally {
+            out.close();
+        }
+
+    }
+
+    protected void excluir(HttpServletRequest request, HttpServletResponse response) {
+        {
+            PrintWriter out = null;
+          //  TTransacao transacao = new TTransacao();
+          //  transacao.setAutoCommit(false);
+
+            try {
+                this.construtora(request.getParameter("classe"));
+                out = response.getWriter();
+                //especificando filtros
+                String[] operador = new String[1];
+                String[] criterio = new String[1];
+                String[] campo = new String[1];
+                String[] valor = new String[1];
+
+                criterio[0] = " where ";
+                campo[0] = " id ";
+                operador[0] = " = ";
+                valor[0] = (String) request.getParameter("id");
+
+                this.fields = this.beans.getClass().getDeclaredFields();
+                this.fields[0].setAccessible(true);
+
+                //atribuindo o valor ao campo
+                this.fields[0].set(this.beans, Integer.parseInt(request.getParameter("id")));
+
+                //excluindo o registro
+                if (this.beans.delete(request.getParameter("tabela"), new TFilter(criterio, campo, operador, valor), request.getSession())) {
+                    out.printf("Registro excluído com sucesso.");
+                  //  transacao.commit();
+                } else {
+                    out.printf("Erro ao excluir os dados");
+                   // transacao.rollback();
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(TCGeneric.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (SQLException ex) {
+                Logger.getLogger(TCGeneric.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IllegalArgumentException ex) {
+                Logger.getLogger(TCGeneric.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IllegalAccessException ex) {
+                Logger.getLogger(TCGeneric.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (SecurityException ex) {
+                Logger.getLogger(TCGeneric.class.getName()).log(Level.SEVERE, null, ex);
+            } finally {
+                out.close();
+            }
+        }
+
+    }
+
+    protected void alterar(HttpServletRequest request, HttpServletResponse response) {
+        PrintWriter out = null;
+      //  TTransacao transacao = new TTransacao();
+      //  transacao.setAutoCommit(false);
+
+        try {
+            this.construtora(request.getParameter("classe"));
+            out = response.getWriter();
+            //vetor de String com o total de atributos da classe
+            this.campos = new String[this.beans.getClass().getDeclaredFields().length];
+
+            //recebe os atributos do classe
+            this.fields = this.beans.getClass().getDeclaredFields();
+
+            for (int i = 0; i < this.campos.length; i++) {
+
+                //torando acessivel o atributo
+                this.fields[i].setAccessible(true);
+
+                //recebendo o nome dos atributos da classe
+                this.campos[i] = this.fields[i].getName();
+
+                try {
+                    //verifica se o atributo do loop está vazio, se estiver setar o valor vindo no request
+                    if ((this.fields[i].get(this.beans) == null) ||
+                            (this.fields[i].get(this.beans).toString().isEmpty()) ||
+                            (this.fields[i].get(this.beans).toString().equals("0"))) {
+
+                        //descobri o tipo do campo para posterior tratamento    
+                        String tipo = this.fields[i].getType().getName();
+
+                        //de acordo com o tipo do atributo setar os valores
+                        if (tipo.equals("int")) {
+                            this.fields[i].set(this.beans, Integer.parseInt(request.getParameter(this.campos[i])));
+                        } else if (tipo.equals("java.lang.String")) {
+                            if (this.campos[i].equals("senha")) {
+                                //System.out.print(request.getParameter("senha"));
+                                this.fields[i].set(this.beans, TUtils.Cripto(request.getParameter(this.campos[i])));
+                            } else {
+                                this.fields[i].set(this.beans, request.getParameter(this.campos[i]));
+                            }
+                        } else if (tipo.equals("Double")) {
+                            this.fields[i].set(this.beans, Double.parseDouble(request.getParameter(this.campos[i])));
+                        } else if (tipo.equals("Float")) {
+                            this.fields[i].set(this.beans, Float.parseFloat(request.getParameter(this.campos[i])));
+                        }
+                    }
+
+                } catch (IllegalAccessException ex) {
+                    Logger.getLogger(TCGeneric.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+
+            //especificando filtros
+            String[] operador = new String[1];
+            String[] criterio = new String[1];
+            String[] campo = new String[1];
+            String[] valor = new String[1];
+
+            criterio[0] = " where ";
+            campo[0] = " id ";
+            operador[0] = " = ";
+            valor[0] = (String) request.getParameter("id");
+
+            if (this.beans.update(request.getParameter("tabela"), new TFilter(criterio, campo, operador, valor), request.getSession())) {
+                out.printf("Registros alterados com sucesso.");
+             //   transacao.commit();
+            } else {
+                out.printf("Erro ao alterar os dados.");
+             //   transacao.rollback();
+            }
+
+        } catch (SQLException ex) {
+            Logger.getLogger(TCGeneric.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(TCGeneric.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            out.close();
+        }
+    }
+
+    protected void listar(HttpServletRequest request, HttpServletResponse response) throws IllegalArgumentException, IllegalAccessException {
+        {
+            response.setContentType("text/xml");
+
+            PrintWriter out = null;
+
+            try {
+                out = response.getWriter();
+                // TCriterio criterio = new TCriterio();
+
+                //especificando filtros
+                String[] operador = new String[4];
+                String[] criterio = new String[4];
+                String[] campo = new String[4];
+                String[] valor = new String[4];
+
+                criterio[0] = "";
+                operador[0] = "";
+                campo[0] = "";
+                valor[0] = "";
+
+                criterio[1] = "";
+                operador[1] = "";
+                campo[1] = "";
+                valor[1] = "";
+                criterio[2] = "";
+                operador[2] = "";
+                campo[2] = "";
+                valor[2] = "";
+
+                criterio[3] = "";
+                operador[3] = "";
+                campo[3] = "";
+                valor[3] = "";
+
+                if (request.getParameter("campo") != null) {
+
+                    String campo1 = request.getParameter("campo");
+                    String valor1 = request.getParameter("valor");
+                    criterio[0] = " where ";
+                    campo[0] = " " + campo1 + " ";
+                    if (valor1 != null) {
+                        operador[0] = " = ";
+                        valor[0] = " " + valor1 + " ";
+                    } else {
+                        operador[0] = " ";
+                        valor[0] = " ";
+                    }
+
+                //   criterio.add(request.getParameter("campo"), " = ", " " +request.getParameter("valor")+ " ");
+
+                }
+
+                if (request.getParameter("campo2") != null && request.getParameter("valor2") != null) {
+                    String campo2 = request.getParameter("campo2");
+                    String valor2 = request.getParameter("valor2");
+                    criterio[1] = " and ";
+                    campo[1] = " " + campo2 + " ";
+                    operador[1] = " = ";
+                    valor[1] = " " + valor2 + " ";
+
+                //                  criterio.add(request.getParameter("campo2"), " = ", " " + request.getParameter("valor2")+ " ");
+
+                }
+                if (request.getParameter("campo3") != null && request.getParameter("valor3") != null) {
+                    String campo3 = request.getParameter("campo3");
+                    String valor3 = request.getParameter("valor3");
+                    criterio[2] = " and ";
+                    campo[2] = " " + campo3 + " ";
+                    operador[2] = " = ";
+                    valor[2] = " " + valor3 + " ";
+                //criterio.add(request.getParameter("campo3"), " = ", " " + request.getParameter("valor3")+ " ");
+
+                }
+
+                if (request.getParameter("campo4") != null && request.getParameter("valor4") != null) {
+                    String campo4 = request.getParameter("campo4");
+                    String valor4 = request.getParameter("valor4");
+                    criterio[2] = " and ";
+                    campo[2] = " " + campo4 + " ";
+                    operador[2] = " = ";
+                    valor[2] = " " + valor4 + " ";
+                //criterio.add(request.getParameter("campo3"), " = ", " " + request.getParameter("valor3")+ " ");
+
+                }
+
+                String limite = "";
+                if (request.getParameter("limite") != null) {
+                    limite = request.getParameter("limite");
+                }
+
+                List<Object> obj = this.beans.select(new TFilter(criterio, campo, operador, valor), request.getParameter("tabela"), limite);
+
+                out.printf("<?xml version='1.0' ?>");
+                out.printf("<rows>");
+
+                for (int j = 0; j < obj.size(); j++) {
+                    Object bean = obj.get(j);
+                    //vetor de String com o total de atributos da classe
+                    this.campos = new String[bean.getClass().getDeclaredFields().length];
+
+                    //recebe os atributos do classe
+                    this.fields = bean.getClass().getDeclaredFields();
+
+                    this.fields[0].setAccessible(true);
+                    out.println("<row id='" + this.fields[0].get(bean).toString() + "'>");
+
+                    for (int i = 0; i < this.campos.length; i++) {
+                        //torando acessivel o atributo
+                        this.fields[i].setAccessible(true);
+                        //recebendo o nome dos atributos da classe
+                        this.campos[i] = this.fields[i].getName();
+
+                        if (this.fields[i].getName().equals("data") || this.fields[i].getName().toString().substring(0, 2).equals("dt")) {
+                            out.println("<cell>" + TUtils.formataData(this.fields[i].get(bean).toString(), 1) + "</cell>");
+                        } else {
+                            out.println("<cell>" + this.fields[i].get(bean) + "</cell>");
+                        }
+                    }
+                    out.println("</row>");
+
+                }
+                out.printf("</rows>");
+            } catch (IOException ex) {
+                //Logger.getLogger(TCGeneric.class.getName()).log(Level.SEVERE, null, ex);
+                System.out.print(ex.getMessage());
+            } catch (SQLException ex) {
+                System.out.print(ex.getMessage());
+            //Logger.getLogger(TCGeneric.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IllegalArgumentException ex) {
+                System.out.print(ex.getMessage());
+            //Logger.getLogger(TCGeneric.class.getName()).log(Level.SEVERE, null, ex);
+            } finally {
+                out.close();
+            }
+        }
+
+    }
+
+    protected void listagem(HttpServletRequest request, HttpServletResponse response) throws IllegalArgumentException, IllegalAccessException {
+        {
+            response.setContentType("text/xml");
+
+            PrintWriter out = null;
+
+            try {
+
+                String campo = request.getParameter("campo");
+                String valor = request.getParameter("valor");
+
+                out = response.getWriter();
+
+                //especificando filtros
+                String[] campos = new String[1];
+                String[] operador = new String[1];
+                String[] valores = new String[1];
+                String[] criterio = new String[1];
+
+                criterio[0] = " where ";
+
+                campos[0] = campo;
+                operador[0] = " = ";
+                valores[0] = "'" + valor.toUpperCase() + "'";
+                if (request.getParameter("campo1") != null && request.getParameter("valor1") != null) {
+                    String campo1 = request.getParameter("campo1");
+                    String valor1 = request.getParameter("valor1");
+                    valores[0] = "'" + valor.toUpperCase() + "' and " + campo1 + " = " + valor1;
+                }
+
+
+                List<Object> obj = this.beans.select(new TFilter(criterio, campos, operador, valores), request.getParameter("tabela"), "");
+
+                out.printf("<?xml version='1.0' encoding='iso-8859-1'?>");
+                out.printf("<rows>");
+
+                for (int j = 0; j < obj.size(); j++) {
+                    Object bean = obj.get(j);
+                    //vetor de String com o total de atributos da classe
+                    this.campos = new String[bean.getClass().getDeclaredFields().length];
+                    //recebe os atributos do classe
+                    this.fields = bean.getClass().getDeclaredFields();
+                    this.fields[0].setAccessible(true);
+
+                    out.println("<row id='" + this.fields[0].get(bean).toString() + "'>");
+
+                    for (int i = 0; i < this.campos.length; i++) {
+                        //torando acessivel o atributo
+                        this.fields[i].setAccessible(true);
+                        //recebendo o nome dos atributos da classe
+                        this.campos[i] = this.fields[i].getName();
+                        out.println("<cell>" + this.fields[i].get(bean) + "</cell>");
+                    }
+
+                    out.println("</row>");
+                }
+                out.printf("</rows>");
+            } catch (IOException ex) {
+                //Logger.getLogger(TCGeneric.class.getName()).log(Level.SEVERE, null, ex);
+                System.out.print(ex.getMessage());
+            } catch (SQLException ex) {
+                System.out.print(ex.getMessage());
+            //Logger.getLogger(TCGeneric.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IllegalArgumentException ex) {
+                System.out.print(ex.getMessage());
+            //Logger.getLogger(TCGeneric.class.getName()).log(Level.SEVERE, null, ex);
+            } finally {
+                out.close();
+            }
+        }
+    }
+
+    protected void ListaCandidato(HttpServletRequest request, HttpServletResponse response, String processo) throws IllegalArgumentException, IllegalAccessException, IOException {
+        response.setContentType("text/xml");
+        PrintWriter out = null;
+        out = response.getWriter();
+        /*
+         * Este metodo do servlet generic será removido.. não utilizar mais.
+         * 
+         */
+        try {
+
+            TCriterio crit = new TCriterio();
+            crit.add(" processo ", " = ", processo);
+
+            List<Object> obj = this.beans.select(crit.getFilter(), request.getParameter("tabela"), "");
+            out.printf("<?xml version='1.0' encoding='ISO-8859-1'?>");
+            out.printf("<rows>");
+
+
+            for (int j = 0; j < obj.size(); j++) {
+                Object bean = obj.get(j);
+                //vetor de String com o total de atributos da classe
+                this.campos = new String[bean.getClass().getDeclaredFields().length];
+                //recebe os atributos do classe
+                this.fields = bean.getClass().getDeclaredFields();
+                this.fields[0].setAccessible(true);
+                out.println("<row id='" + this.fields[0].get(bean).toString() + "'>");
+                for (int i = 0; i < this.campos.length; i++) {
+                    //torando acessivel o atributo
+                    this.fields[i].setAccessible(true);
+                    //recebendo o nome dos atributos da classe
+                    this.campos[i] = this.fields[i].getName();
+                    out.println("<cell>" + this.fields[i].get(bean) + "</cell>");
+                }
+
+                out.println("</row>");
+            }
+            out.printf("</rows>");
+        } catch (SQLException ex) {
+            System.out.print(ex.getMessage());
+        //Logger.getLogger(TCGeneric.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IllegalArgumentException ex) {
+            System.out.print(ex.getMessage());
+        }
+
+    }
+
+    protected void listarAnoSemestre(HttpServletRequest request, HttpServletResponse response) throws IllegalArgumentException, IllegalAccessException {
+        {
+            response.setContentType("text/xml");
+
+            PrintWriter out = null;
+
+            try {
+                out = response.getWriter();
+
+                //especificando filtros
+                TCriterio criterio = new TCriterio();
+                criterio.add(" ano ", " = ", "'" + (String) request.getSession().getAttribute("ano") + "'");
+                criterio.add(" semestre ", " = ", "'" + (String) request.getSession().getAttribute("semestre") + "'");
+
+                List<Object> obj = this.beans.select(criterio.getFilter(), request.getParameter("tabela"), "");
+
+                out.printf("<?xml version='1.0' encoding='ISO-8859-1'?>");
+                out.printf("<rows>");
+
+
+                for (int j = 0; j < obj.size(); j++) {
+                    Object bean = obj.get(j);
+                    //vetor de String com o total de atributos da classe
+                    this.campos = new String[bean.getClass().getDeclaredFields().length];
+
+                    //recebe os atributos do classe
+                    this.fields = bean.getClass().getDeclaredFields();
+
+                    this.fields[0].setAccessible(true);
+                    out.println("<row id='" + this.fields[0].get(bean).toString() + "'>");
+
+                    for (int i = 0; i < this.campos.length; i++) {
+                        //torando acessivel o atributo
+                        this.fields[i].setAccessible(true);
+                        //recebendo o nome dos atributos da classe
+                        this.campos[i] = this.fields[i].getName();
+
+                        if (this.fields[i].getName().equals("data") || this.fields[i].getName().toString().substring(0, 2).equals("dt")) {
+                            out.println("<cell>" + TUtils.formataData(this.fields[i].get(bean).toString(), 1) + "</cell>");
+                        } else {
+                            out.println("<cell>" + this.fields[i].get(bean) + "</cell>");
+                        }
+                    }
+                    out.println("</row>");
+
+                }
+                out.printf("</rows>");
+            } catch (IOException ex) {
+                //Logger.getLogger(TCGeneric.class.getName()).log(Level.SEVERE, null, ex);
+                System.out.print(ex.getMessage());
+            } catch (SQLException ex) {
+                System.out.print(ex.getMessage());
+            //Logger.getLogger(TCGeneric.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IllegalArgumentException ex) {
+                System.out.print(ex.getMessage());
+            //Logger.getLogger(TCGeneric.class.getName()).log(Level.SEVERE, null, ex);
+            } finally {
+                out.close();
+            }
+        }
+
+    }
+
+    protected void setTurmaDisciplina(HttpServletRequest request, HttpServletResponse response) {
+        response.setContentType("text/xml");
+
+        try {
+            PrintWriter out = null;
+            out = response.getWriter();
+            String turma = request.getParameter("turma");
+            String disciplina = request.getParameter("disciplina");
+
+            HttpSession session = request.getSession(true);
+            session.setAttribute("turma", turma);
+            session.setAttribute("disciplina", disciplina);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}

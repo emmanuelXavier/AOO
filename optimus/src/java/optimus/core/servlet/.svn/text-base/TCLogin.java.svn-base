@@ -1,0 +1,142 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package optimus.core.servlet;
+
+import java.io.*;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import optimus.core.IValidacao;
+import javax.servlet.*;
+import javax.servlet.http.*;
+import optimus.core.beans.TLogAcesso;
+import optimus.core.TStrategyContexto;
+import optimus.core.TUtils;
+
+/**
+ * TCLogin - Servlet para autenticação  de usuários
+ * @author Administrator
+ */
+public class TCLogin extends HttpServlet {
+
+    private ResultSet resultado = null;
+    private HttpSession session = null;
+
+    /** 
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
+     * @param request servlet request
+     * @param response servlet response
+     */
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        response.setContentType("text/html;charset=UTF-8");
+        PrintWriter out = response.getWriter();
+        this.session = request.getSession();
+        
+        IValidacao login = null;
+
+        try {
+
+            TStrategyContexto strategy = new TStrategyContexto(request.getParameter("classe"));
+            login = (IValidacao) strategy.factoryStrategy();
+
+            this.resultado = login.validaLogin(request.getParameter("login").toUpperCase(), request.getParameter("senha").toUpperCase(), request.getParameter("tabela"));
+            try {
+                if (this.resultado.next()) {
+                    //criando a sesssion e inserindo o log
+                    this.insertLog(this.setSession(request));
+
+                    if ((this.resultado.getInt("grupo") == 1) || (this.resultado.getInt("grupo") == 2)) {
+                        response.sendRedirect(login.goPainel());
+                        session.setAttribute("logadoUsuario", "true");
+                    }
+                    else if (this.resultado.getInt("grupo") == 3) {
+                        response.sendRedirect("discipulus/VDiscipulus.jsp");
+                        session.setAttribute("logadoAluno", "true");
+                    }
+                    else if (this.resultado.getInt("grupo") == 4) {
+                        response.sendRedirect("magister/VMagister.jsp");
+                        session.setAttribute("logadoProfessor", "true");
+                    }
+                    else if (this.resultado.getInt("grupo") == 5) {
+                        response.sendRedirect("excellens/VExcellens.jsp");
+                        session.setAttribute("logadoCoordenador", "true");
+                    }
+		    else if (this.resultado.getInt("grupo") == 7) {
+                        response.sendRedirect("reservas/Reservas.jsp");
+                        session.setAttribute("logadoReservas", "true");
+                    }
+                            
+                    
+                } else {
+                    if (request.getParameter("logon") == null){
+                         response.sendRedirect(login.goLogin());
+                    } else {
+                         response.sendRedirect(request.getParameter("logon"));
+                    }
+                   
+                }
+            } catch (SQLException ex) {
+                Logger.getLogger(TCLogin.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+        } finally {
+            out.close();
+        }
+    }
+    //Inserindo as informações do usuario numa session
+
+    private HttpSession setSession(HttpServletRequest request) throws SQLException {       
+        
+        session.setAttribute("usuario", this.resultado.getInt("id"));
+        session.setAttribute("id", this.resultado.getInt("idpessoa"));
+        session.setAttribute("nomeUsuario", this.resultado.getString("pessoa"));
+        session.setAttribute("grupo", this.resultado.getInt("grupo"));
+        session.setAttribute("login", this.resultado.getString("login"));
+        session.setAttribute("ano", TUtils.getAno());
+        session.setAttribute("semestre",TUtils.getsemestre());
+        return session;
+    }
+    //Log Acesso
+    private void insertLog(HttpSession session) throws SQLException {
+
+        TLogAcesso ac = new TLogAcesso();
+        ac.setUsuario(this.resultado.getString("id"));
+        ac.setGrupo(this.resultado.getString("grupo"));
+        ac.setEntrada(ac.getTime());
+        ac.setSaida(ac.getTime());
+        ac.insert("si014", session);
+    }
+
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    /** 
+     * Handles the HTTP <code>GET</code> method.
+     * @param request servlet request
+     * @param response servlet response
+     */
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    /** 
+     * Handles the HTTP <code>POST</code> method.
+     * @param request servlet request
+     * @param response servlet response
+     */
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    /** 
+     * Returns a short description of the servlet.
+     */
+    public String getServletInfo() {
+        return "Short description";
+    }
+    // </editor-fold>
+}

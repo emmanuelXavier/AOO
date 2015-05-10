@@ -1,0 +1,105 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+package optimus.core.servlet;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import optimus.core.TFilter;
+
+/**
+ * TCComboFields - Permite preencher uma combo com qualquer campos tanto nas propriedades value e nome
+ * bastando apenas passar parametros referencias nomeField e valueField
+ * @author OPTIMUS
+ */
+public class TCComboFields extends TCCombo {
+    
+    protected String valueField;
+    protected String nomeField;
+  
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+    throws ServletException, IOException {
+        response.setContentType("text/html;charset=UTF-8");
+        PrintWriter out = response.getWriter();
+        try {
+            /* TODO output your page here
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<title>Servlet TCComboFields</title>");  
+            out.println("</head>");
+            out.println("<body>");
+            out.println("<h1>Servlet TCComboFields at " + request.getContextPath () + "</h1>");
+            out.println("</body>");
+            out.println("</html>");
+            */
+        } finally { 
+            out.close();
+        }
+    } 
+
+    // <editor-fold defaultstate="collapsed" desc="Métodos HttpServlet. Clique no sinal de + à esquerda para editar o código.">
+    /** 
+    * Handles the HTTP <code>GET</code> method.
+    * @param request servlet request
+    * @param response servlet response
+    */
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+    throws ServletException, IOException {
+        
+        try {
+            
+            this.construtora(request.getParameter("classe"));
+            
+            response.setContentType("text/html");
+            
+            PrintWriter out = null;
+            out = response.getWriter();
+
+            //especificando filtros
+            String[] operador = new String[1];
+            String[] criterio = new String[1];
+
+            criterio[0] = " order by id ";
+            operador[0] = "  ";
+            ResultSet rs = null;
+
+            this.nomeField  = request.getParameter("nomeField");
+            this.valueField = request.getParameter("valueField");
+            
+            rs = (ResultSet) this.beans.select(request.getParameter("tabela"), new TFilter(criterio, operador, operador, operador), "");
+
+            //vetor de String com o total de atributos da classe
+            //this.campos = new String[this.beans.getClass().getDeclaredFields().length];
+
+            //recebe os atributos do classe
+            //this.fields = this.beans.getClass().getDeclaredFields();
+
+            while (rs.next()) {
+                out.println("<option value='" + rs.getInt(valueField) + "'>" + rs.getString(nomeField) + "</option>");
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(TCCombo.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IllegalArgumentException ex) {
+            Logger.getLogger(TCCombo.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    } 
+
+
+    /** 
+    * Returns a short description of the servlet.
+    */
+    public String getServletInfo() {
+        return "Short description";
+    }// </editor-fold>
+
+}

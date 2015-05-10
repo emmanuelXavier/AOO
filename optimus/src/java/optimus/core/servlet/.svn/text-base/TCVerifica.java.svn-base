@@ -1,0 +1,194 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+package optimus.core.servlet;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.lang.reflect.Field;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import optimus.core.TFilter;
+import optimus.core.TStrategyContexto;
+import optimus.core.dao.TGenericDAO;
+
+/**
+ *
+ * @author PAULO
+ */
+public class TCVerifica extends HttpServlet {
+   
+    protected TGenericDAO beans;
+    protected Field[] fields;
+    protected String[] campos;
+
+    protected void construtora(String classe) {
+
+        TStrategyContexto strategy = new TStrategyContexto(classe);
+        this.beans = (TGenericDAO) strategy.factoryStrategy();
+
+    }
+
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+    throws ServletException, IOException, SQLException {
+           PrintWriter out = null;
+
+           System.out.println("estou no TC");
+            this.construtora(request.getParameter("classe"));
+            
+            try {
+                out = response.getWriter();
+
+                String[] operador = new String[4];
+                String[] criterio = new String[4];
+                String[] campo = new String[4];
+                String[] valor = new String[4];
+
+                criterio[0] = "";
+                operador[0] = "";
+                campo[0] = "";
+                valor[0] = "";
+
+                criterio[1] = "";
+                operador[1] = "";
+                campo[1] = "";
+                valor[1] = "";
+                criterio[2] = "";
+                operador[2] = "";
+                campo[2] = "";
+                valor[2] = "";
+
+                criterio[3] = "";
+                operador[3] = "";
+                campo[3] = "";
+                valor[3] = "";
+
+                if (request.getParameter("campo") != null) {
+
+                    String campo1 = request.getParameter("campo");
+                    String valor1 = request.getParameter("valor");
+                    criterio[0] = " where ";
+                    campo[0] = " " + campo1 + " ";
+                    if (valor1 != null) {
+                        operador[0] = " = ";
+                        valor[0] = " " + valor1 + " ";
+                    } else {
+                        System.out.println("else");
+                        operador[0] = " ";
+                        valor[0] = " ";
+                    }
+
+             
+                }
+
+                if (request.getParameter("campo2") != null && request.getParameter("valor2") != null) {
+                    String campo2 = request.getParameter("campo2");
+                    String valor2 = request.getParameter("valor2");
+                    criterio[1] = " and ";
+                    campo[1] = " " + campo2 + " ";
+                    operador[1] = " = ";
+                    valor[1] = " " + valor2 + " ";
+
+             
+                }
+                if (request.getParameter("campo3") != null && request.getParameter("valor3") != null) {
+                    String campo3 = request.getParameter("campo3");
+                    String valor3 = request.getParameter("valor3");
+                    criterio[2] = " and ";
+                    campo[2] = " " + campo3 + " ";
+                    operador[2] = " = ";
+                    valor[2] = " " + valor3 + " ";
+     
+                }
+
+                if (request.getParameter("campo4") != null && request.getParameter("valor4") != null) {
+                    String campo4 = request.getParameter("campo4");
+                    String valor4 = request.getParameter("valor4");
+                    criterio[2] = " and ";
+                    campo[2] = " " + campo4 + " ";
+                    operador[2] = " = ";
+                    valor[2] = " " + valor4 + " ";
+     
+                }
+
+                String limite = "";
+                if (request.getParameter("limite") != null) {
+                    limite = request.getParameter("limite");
+                }
+
+                List<Object> obj = this.beans.select(new TFilter(criterio, campo, operador, valor), request.getParameter("tabela"), limite);
+
+                if (!obj.isEmpty()){
+                    
+                    out.println("true");
+                }
+                
+            } catch (IOException ex) {
+                
+                System.out.print(ex.getMessage());
+            } catch (SQLException ex) {
+                System.out.print(ex.getMessage());
+            
+            } catch (IllegalArgumentException ex) {
+                System.out.print(ex.getMessage());
+            
+            } finally {
+                out.close();
+            }
+        }
+
+        
+
+    // <editor-fold defaultstate="collapsed" desc="Métodos HttpServlet. Clique no sinal de + à esquerda para editar o código.">
+    /** 
+     * Handles the HTTP <code>GET</code> method.
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+    throws ServletException, IOException {
+        try {
+            processRequest(request, response);
+        } catch (SQLException ex) {
+            Logger.getLogger(TCVerifica.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    } 
+
+    /** 
+     * Handles the HTTP <code>POST</code> method.
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+    throws ServletException, IOException {
+        try {
+            processRequest(request, response);
+        } catch (SQLException ex) {
+            Logger.getLogger(TCVerifica.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    /** 
+     * Returns a short description of the servlet.
+     * @return a String containing servlet description
+     */
+    @Override
+    public String getServletInfo() {
+        return "Short description";
+    }// </editor-fold>
+
+}

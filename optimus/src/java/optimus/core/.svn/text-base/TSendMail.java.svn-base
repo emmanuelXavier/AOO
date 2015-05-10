@@ -1,0 +1,91 @@
+package optimus.core;
+
+import org.apache.commons.mail.EmailException;
+import org.apache.commons.mail.HtmlEmail;
+import org.apache.commons.mail.SimpleEmail;
+
+/**
+  * @author Mikhaell
+ */
+public class TSendMail  {
+    
+    private String remetente;
+    private String nomeRemetente;
+    private String destinatario;
+    private String nomeDestinatario;
+    private String assunto;
+    private String msghtml;
+    //private static String smtpServer = "mail.wsplastering.com";
+    //private static String smtpUser = "contact@wsplastering.com";
+    //private static String smtpPass = "654321";               // não olhem minha senha
+    private static String smtpServer = "mail.wsplastering.com";
+    private static String smtpUser = "contact@wsplastering.com";
+    private static String smtpPass = "654321";               // não olhem minha senha
+    
+    
+    //Envio de email simples (email besta mesmo)
+    public void TSendMail(String conteudo) throws EmailException
+    {
+        SimpleEmail email = new SimpleEmail();
+        autentica(email);
+        sendSimple(email,conteudo);
+    }
+    
+    //Envio de email Html (tipo os de spam)
+    public void TSendMail(String html, int i) throws EmailException
+    {
+        HtmlEmail email = new HtmlEmail();
+        autentica(email);
+        sendHtml(email,html);
+    }
+    
+    public void setAssunto(String assunto) {
+        this.assunto = assunto;
+    }
+    public void setDestinatario(String destinatario) {
+        this.destinatario = destinatario;
+    }
+    public void setRemetente(String remetente) {
+        this.remetente = remetente;
+    }
+    public void setNomeDestinatario(String nomeDestinatario) {
+        this.nomeDestinatario = nomeDestinatario;
+    }
+    public void setNomeRemetente(String nomeRemetente) {
+        this.nomeRemetente = nomeRemetente;
+    }
+    public void setMsghtml(String msghtml) {
+        this.msghtml = msghtml;
+    }
+    
+
+    private void sendSimple(SimpleEmail email, String conteudo) throws EmailException
+    {
+        email.addTo(this.destinatario, this.nomeDestinatario);      // destinatario
+        email.setFrom(this.remetente, this.nomeRemetente);          // remetente
+        email.setSubject(this.assunto);                             // assunto
+        email.setMsg(conteudo);                              //conteudo do e-mail
+        email.send();  
+    }
+
+    private void sendHtml (HtmlEmail email, String html) throws EmailException
+    {
+        email.addTo(this.destinatario, this.nomeDestinatario);
+        email.setFrom(this.remetente,this.nomeRemetente);
+        email.setSubject(this.assunto);
+        email.setHtmlMsg(html);
+        email.setTextMsg("Seu servidor de e-mail não suporta mensagem HTML");         // padrão
+        email.send();
+    }
+    
+    private void autentica(SimpleEmail email)
+    {
+        email.setHostName(TSendMail.smtpServer);
+        email.setAuthentication(TSendMail.smtpUser, TSendMail.smtpPass);
+    }
+    private void autentica(HtmlEmail email)
+    {
+        email.setHostName(TSendMail.smtpServer);
+        email.setAuthentication(TSendMail.smtpUser, TSendMail.smtpPass);
+    }
+}

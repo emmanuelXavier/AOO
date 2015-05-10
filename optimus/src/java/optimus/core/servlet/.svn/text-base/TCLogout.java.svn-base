@@ -1,0 +1,120 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package optimus.core.servlet;
+
+import java.io.*;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.servlet.*;
+import javax.servlet.http.*;
+import optimus.core.*;
+import optimus.core.beans.TLogAcesso;
+
+/**
+ *  
+ * @author Administrator
+ */
+public class TCLogout extends HttpServlet {
+
+    /** 
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
+     * @param request servlet request
+     * @param response servlet response
+     */
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException, SQLException {
+        response.setContentType("text/html;charset=UTF-8");
+        PrintWriter out = response.getWriter();
+        try {
+            TLogAcesso ac = new TLogAcesso();
+            String id = request.getSession().getAttribute("usuario").toString();
+
+            String[] criterio = new String[1];
+            String[] xcampo = new String[1];
+            String[] operador = new String[1];
+            String[] valor = new String[1];
+
+            criterio[0] = " where ";
+            xcampo[0] = " usuario ";
+            operador[0] = "=";
+            valor[0] = "" + id;
+
+            ResultSet rs = (ResultSet) ac.select("si014", new TFilter(criterio, xcampo, operador, valor)," order by id desc limit 1 ");
+
+            if (rs.next()) {
+                ac.setId(rs.getInt("id"));
+                ac.setGrupo(rs.getString("grupo"));
+                ac.setEntrada(rs.getString("entrada"));
+                ac.setUsuario(id);
+                ac.setSaida(ac.getTime());
+            }
+
+            criterio[0] = " where ";
+            xcampo[0] = "id";
+            operador[0] = "=";
+            valor[0] = "" + ac.getId();
+
+            ac.update("si014", new TFilter(criterio, xcampo, operador, valor),request.getSession());
+            int grupo = Integer.parseInt(request.getSession().getAttribute("grupo").toString());
+            request.getSession().invalidate();
+            
+             if ((grupo == 1) || (grupo == 2)) {
+                        response.sendRedirect("login/VLogin.jsp");
+                    }
+                    else if (grupo == 3) {
+                        response.sendRedirect("discipulus/index.jsp");
+                    }
+                    else if (grupo == 4) {
+                        response.sendRedirect("magister/index.jsp");
+                    }
+                    else if (grupo == 5) {
+                        response.sendRedirect("excellens/index.jsp");
+                    }
+
+        } finally {
+            out.close();
+        }
+    }
+
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    /** 
+     * Handles the HTTP <code>GET</code> method.
+     * @param request servlet request
+     * @param response servlet response
+     */
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try {
+            processRequest(request, response);
+        } catch (SQLException ex) {
+            Logger.getLogger(TCLogout.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    /** 
+     * Handles the HTTP <code>POST</code> method.
+     * @param request servlet request
+     * @param response servlet response
+     */
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try {
+            processRequest(request, response);
+        } catch (SQLException ex) {
+            Logger.getLogger(TCLogout.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    /** 
+     * Returns a short description of the servlet.
+     */
+    public String getServletInfo() {
+        return "Short description";
+    }
+    // </editor-fold>
+}
